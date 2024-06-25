@@ -22,7 +22,7 @@ jobs:
       - name: Set app-version
         id: set-version
         run: |
-          app_version="${{ github.event_name == 'push' && 'latest' || '${GITHUB_REF_NAME}-${GITHUB_SHA}'}}"
+          app_version="${{ github.event_name == 'push' && 'latest' || ${GITHUB_REF_NAME}-${GITHUB_SHA}}}"
           echo "app_version=${app_version}" >> $GITHUB_OUTPUT
           echo "App version set to '${app_version}'"
       - name: Print app_version
