@@ -22,8 +22,20 @@ jobs:
       - name: Set app-version
         id: set-version
         run: |
-          app_version="${{ github.event_name == 'push' && 'latest' || github.ref_name }}"
-          echo "app_version=${app_version}" >> $GITHUB_OUTPUT
-          echo "App version set to '${app_version}'"
+          if [ "${{ github.event_name }}" == "push" ]; then
+            echo "app_version=latest" >> $GITHUB_OUTPUT
+            echo "App version set to 'latest'"
+          elif [ "${{ github.event_name }}" == "pull_request" ]; then
+            pr_number=${{ github.event.pull_request.number }}
+            echo "app_version=pr-${pr_number}" >> $GITHUB_OUTPUT
+            echo "App version set to 'pr-${pr_number}'"
+          else
+            app_version=${{ github.ref_name }}
+            echo "app_version=${app_version}" >> $GITHUB_OUTPUT
+            echo "App version set to '${app_version}'"
+
+          
       - name: Print app_version
         run: echo "The app_version is ${{ steps.set-version.outputs.app_version }}"
+
+
