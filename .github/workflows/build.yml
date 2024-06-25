@@ -33,7 +33,7 @@ jobs:
             app_version=${{ github.ref_name }}
             echo "app_version=${app_version}" >> $GITHUB_OUTPUT
             echo "App version set to '${app_version}'"
-
+          fi
           
       - name: Print app_version
         run: echo "The app_version is ${{ steps.set-version.outputs.app_version }}"
