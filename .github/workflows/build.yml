@@ -1,6 +1,11 @@
 name: Build automation image
 on:
   workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to run the workflow on'
+        required: true
+        default: 'main'
   pull_request:
     types: [opened, reopened, synchronize]
   push:
@@ -9,13 +14,20 @@ on:
       - 'release/*'
 
 jobs:
-  build:
-    uses: EENCloud/workflow-library/.github/workflows/build_docker_image.yml@main
-    with:
-      project-name: "ui-automation"
-      app-version: "${{ github.head_ref }}-${{ github.sha }}"
-      artifacts-push: true
-    secrets:
-      VAULT_ROLE_ID: ${{ secrets.VAULT_ROLE_ID }}
-      VAULT_SECRET_ID: ${{ secrets.VAULT_SECRET_ID }}
-      VAULT_CA_CERT: ${{ secrets.VAULT_CA_CERT }}
+  set-app-version:
+    runs-on:
+      group: "${{ vars.RUNNER_GROUP }}"
+    outputs:
+      app_version: ${{ steps.set-version.outputs.app_version }}
+    steps:
+      - name: Set app-version
+        id: set-version
+        run: |
+          if [ "${{ github.event_name }}" == "push" ]; then
+            echo "app_version=latest" >> $GITHUB_OUTPUT
+            echo "App version set to 'latest'"
+          else
+            app_version="${GITHUB_REF_NAME}-${GITHUB_SHA}"
+            echo "app_version=${app_version}" >> $GITHUB_OUTPUT
+            echo "App version set to '${app_version}'"
+          fi
